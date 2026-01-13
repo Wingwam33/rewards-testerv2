@@ -1,0 +1,3249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards System Tester</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎁</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(180deg, #0a0a1f 0%, #1a0a2e 100%);
+            color: #ffffff;
+            padding: 15px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-tab {
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .nav-tab.active {
+            color: #fff;
+            border-bottom: 2px solid #8a2be2;
+        }
+
+        /* User Profile */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 0;
+        }
+
+        .user-profile-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-profile-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .reset-progress-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .reset-progress-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.5);
+        }
+
+        .profile-stat {
+            text-align: center;
+        }
+
+        .profile-stat-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .profile-stat-value {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            position: relative;
+        }
+
+        .avatar-level {
+            position: absolute;
+            bottom: -3px;
+            right: -3px;
+            background: #8a2be2;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            border: 2px solid #1a0a2e;
+        }
+
+        .user-info h2 {
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .user-xp {
+            font-size: 13px;
+            color: #8a2be2;
+            font-weight: bold;
+        }
+
+        /* XP Controls */
+        .xp-controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            flex-wrap: wrap;
+        }
+
+        .xp-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .xp-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+        }
+
+        .xp-button:active {
+            transform: translateY(0);
+        }
+
+        .xp-button.pack-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .xp-button.pack-button:hover {
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.5);
+        }
+
+        .xp-button.nft-button {
+            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+        }
+
+        .xp-button.nft-button:hover {
+            box-shadow: 0 5px 15px rgba(6, 182, 212, 0.5);
+        }
+
+        .xp-button.nft-purchase-button {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+        }
+
+        .xp-button.nft-purchase-button:hover {
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.5);
+        }
+
+        .xp-button.lucky-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .xp-button.lucky-button:hover {
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.5);
+        }
+
+        .xp-button.reset-button {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .xp-button.reset-button:hover {
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.5);
+        }
+
+        .xp-section {
+            margin-bottom: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .xp-section-label {
+            font-size: 10px;
+            color: #888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .button-row .xp-button {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Rewards Track */
+        .rewards-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #aaa;
+            font-weight: normal;
+        }
+
+        .section-title-collapsible {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            padding: 5px 0;
+        }
+
+        .section-title-collapsible:hover {
+            color: #fff;
+        }
+
+        .collapse-icon {
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .section-subtitle {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .collapsible-content {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .rewards-track-container {
+            position: relative;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+
+        .rewards-track {
+            display: flex;
+            gap: 40px;
+            overflow-x: auto;
+            padding: 15px 12px 50px;
+            background: rgba(10, 10, 31, 0.5);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .rewards-track::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .rewards-track::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .rewards-track::-webkit-scrollbar-thumb {
+            background: #8a2be2;
+            border-radius: 4px;
+        }
+
+        .level-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 130px;
+            position: relative;
+        }
+
+        .reward-bundle {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .reward-bundle:hover {
+            border-color: #8a2be2;
+            transform: translateY(-5px);
+        }
+
+        .reward-bundle.claimed {
+            opacity: 0.5;
+            border-color: #00ff00;
+        }
+
+        .reward-bundle.ready {
+            border-color: #ffd700;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+        }
+
+        .reward-bundle.locked {
+            opacity: 0.3;
+        }
+
+        /* Bundle glow effects */
+        .reward-bundle.bundle-uncommon {
+            background: radial-gradient(circle at center, rgba(50, 205, 50, 0.15) 0%, rgba(255, 255, 255, 0.08) 70%);
+            box-shadow: 0 0 30px rgba(50, 205, 50, 0.4);
+        }
+
+        .reward-bundle.bundle-uncommon .reward-icon {
+            filter: drop-shadow(0 0 20px rgba(50, 205, 50, 0.9)) drop-shadow(0 0 40px rgba(50, 205, 50, 0.6));
+            animation: glow-green 2s ease-in-out infinite;
+        }
+
+        .reward-bundle.bundle-rare {
+            background: radial-gradient(circle at center, rgba(138, 43, 226, 0.15) 0%, rgba(255, 255, 255, 0.08) 70%);
+            box-shadow: 0 0 30px rgba(138, 43, 226, 0.4);
+        }
+
+        .reward-bundle.bundle-rare .reward-icon {
+            filter: drop-shadow(0 0 20px rgba(138, 43, 226, 0.9)) drop-shadow(0 0 40px rgba(138, 43, 226, 0.6));
+            animation: glow-purple 2s ease-in-out infinite;
+        }
+
+        .reward-bundle.bundle-epic {
+            background: radial-gradient(circle at center, rgba(255, 0, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 70%);
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.4);
+        }
+
+        .reward-bundle.bundle-epic .reward-icon {
+            filter: drop-shadow(0 0 20px rgba(255, 0, 255, 0.9)) drop-shadow(0 0 40px rgba(255, 0, 255, 0.6));
+            animation: glow-magenta 2s ease-in-out infinite;
+        }
+
+        .reward-bundle.bundle-legendary {
+            background: radial-gradient(circle at center, rgba(255, 215, 0, 0.15) 0%, rgba(255, 255, 255, 0.08) 70%);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .reward-bundle.bundle-legendary .reward-icon {
+            filter: drop-shadow(0 0 25px rgba(255, 215, 0, 1)) drop-shadow(0 0 50px rgba(255, 215, 0, 0.7));
+            animation: glow-gold 2s ease-in-out infinite;
+        }
+
+        @keyframes glow-green {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(50, 205, 50, 0.9)) drop-shadow(0 0 40px rgba(50, 205, 50, 0.6)); }
+            50% { filter: drop-shadow(0 0 30px rgba(50, 205, 50, 1)) drop-shadow(0 0 60px rgba(50, 205, 50, 0.8)); }
+        }
+
+        @keyframes glow-purple {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(138, 43, 226, 0.9)) drop-shadow(0 0 40px rgba(138, 43, 226, 0.6)); }
+            50% { filter: drop-shadow(0 0 30px rgba(138, 43, 226, 1)) drop-shadow(0 0 60px rgba(138, 43, 226, 0.8)); }
+        }
+
+        @keyframes glow-magenta {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 0, 255, 0.9)) drop-shadow(0 0 40px rgba(255, 0, 255, 0.6)); }
+            50% { filter: drop-shadow(0 0 30px rgba(255, 0, 255, 1)) drop-shadow(0 0 60px rgba(255, 0, 255, 0.8)); }
+        }
+
+        @keyframes glow-gold {
+            0%, 100% { filter: drop-shadow(0 0 25px rgba(255, 215, 0, 1)) drop-shadow(0 0 50px rgba(255, 215, 0, 0.7)); }
+            50% { filter: drop-shadow(0 0 35px rgba(255, 215, 0, 1)) drop-shadow(0 0 70px rgba(255, 215, 0, 0.9)); }
+        }
+
+        .reward-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+            transition: filter 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .reward-bundle.bundle-uncommon .reward-icon,
+        .reward-bundle.bundle-rare .reward-icon,
+        .reward-bundle.bundle-epic .reward-icon,
+        .reward-bundle.bundle-legendary .reward-icon {
+            font-size: 52px;
+        }
+
+        /* Add sparkle effect for bundles */
+        .reward-bundle.bundle-uncommon::after,
+        .reward-bundle.bundle-rare::after,
+        .reward-bundle.bundle-epic::after,
+        .reward-bundle.bundle-legendary::after {
+            content: '✨';
+            position: absolute;
+            font-size: 20px;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        .reward-bundle.bundle-uncommon::after {
+            content: '✨';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px;
+            opacity: 0.6;
+        }
+
+        .reward-bundle.bundle-rare::after,
+        .reward-bundle.bundle-epic::after,
+        .reward-bundle.bundle-legendary::after {
+            content: '✨';
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.8;
+        }
+
+        .reward-bundle.bundle-rare::after {
+            content: '✨';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 16px;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+
+        .reward-bundle.bundle-epic::after {
+            content: '✨';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+
+        .reward-bundle.bundle-legendary::after {
+            content: '✨';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 20px;
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .reward-name {
+            font-size: 10px;
+            text-align: center;
+            color: #ccc;
+            line-height: 1.2;
+        }
+
+        .reward-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+        }
+
+        .level-indicator {
+            background: rgba(138, 43, 226, 0.3);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .level-indicator.current {
+            background: #8a2be2;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+        }
+
+        .xp-requirement {
+            font-size: 10px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .badge-unlock {
+            position: absolute;
+            bottom: -25px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: bold;
+            animation: badge-glow 2s infinite;
+        }
+
+        @keyframes badge-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 215, 0, 1); }
+        }
+
+        /* Milestone level styling */
+        .level-node.milestone {
+            position: relative;
+        }
+
+        .level-node.milestone::before {
+            content: '⭐';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            animation: milestone-float 3s ease-in-out infinite;
+        }
+
+        @keyframes milestone-float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .level-node.milestone .reward-bundle {
+            border-width: 3px;
+        }
+
+        .level-node.milestone .level-indicator {
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            color: #1a0a2e;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff00ff 0%, #ff0080 50%, #ff4500 100%);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: bold;
+            font-size: 11px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        /* Missions */
+        .missions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .mission-card {
+            background: rgba(10, 10, 31, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .mission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .mission-level {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .mission-xp {
+            font-size: 12px;
+            color: #ff0080;
+            font-weight: bold;
+        }
+
+        .mission-progress {
+            width: 100px;
+            height: 100px;
+            margin: 12px auto;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .mission-progress:hover {
+            transform: scale(1.05);
+        }
+
+        .mission-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#8a2be2 0deg, rgba(138, 43, 226, 0.15) 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+        }
+
+        .mission-circle-inner {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: #1a0a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .mission-title {
+            font-size: 14px;
+            margin-bottom: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .mission-description {
+            font-size: 10px;
+            color: #888;
+            text-align: center;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .mission-claim-btn {
+            width: 100%;
+            padding: 9px;
+            margin-top: 8px;
+            background: linear-gradient(135deg, #ff0080 0%, #ff4500 100%);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .mission-claim-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 128, 0.4);
+        }
+
+        .mission-claim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Inventory and Badges Container */
+        .inventory-badges-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .inventory-column {
+            flex: 0 0 35%;
+            background: rgba(10, 10, 31, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .inventory-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .badges-column {
+            flex: 1;
+            background: rgba(10, 10, 31, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .badges-column.collapsed {
+            flex: 0;
+            min-width: 50px;
+            padding: 20px 10px;
+        }
+
+        .badges-column.collapsed .badges-header {
+            justify-content: center;
+        }
+
+        .badges-column.collapsed .badges-grid {
+            display: none;
+        }
+
+        .badges-column.collapsed .badges-title {
+            display: none;
+        }
+
+        .badges-column.collapsed .badges-filter {
+            display: none;
+        }
+
+        .badges-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .badges-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badges-toggle {
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
+
+        .badges-toggle:hover {
+            color: #fff;
+        }
+
+        .badges-title {
+            font-size: 16px;
+            color: #fff;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .badges-filter {
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
+
+        .badges-filter:hover {
+            color: #fff;
+        }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+
+        .inventory-item {
+            background: rgba(26, 10, 46, 0.8);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .inventory-item:hover {
+            border-color: #8a2be2;
+            transform: translateY(-3px);
+        }
+
+        .item-count-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(138, 43, 226, 0.8);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .item-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .item-name {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .item-value {
+            font-size: 10px;
+            color: #888;
+            margin-bottom: 12px;
+        }
+
+        .item-action-btn {
+            width: 100%;
+            padding: 8px;
+            background: rgba(138, 43, 226, 0.3);
+            border: 1px solid rgba(138, 43, 226, 0.5);
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+        }
+
+        .item-action-btn:hover {
+            background: rgba(138, 43, 226, 0.5);
+            border-color: #8a2be2;
+        }
+
+        /* Badges */
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .badge-item {
+            background: rgba(26, 10, 46, 0.8);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .badge-item.earned {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3) 0%, rgba(255, 0, 128, 0.2) 100%);
+            border: 2px solid #8a2be2;
+            animation: badge-earned 3s infinite;
+        }
+
+        @keyframes badge-earned {
+            0%, 100% { box-shadow: 0 0 20px rgba(138, 43, 226, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(138, 43, 226, 0.8); }
+        }
+
+        .badge-item.locked {
+            opacity: 0.4;
+        }
+
+        .badge-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+            filter: grayscale(100%);
+            transition: filter 0.3s ease;
+        }
+
+        .badge-item.earned .badge-icon {
+            filter: grayscale(0%);
+        }
+
+        .badge-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .badge-description {
+            font-size: 10px;
+            color: #888;
+            line-height: 1.4;
+        }
+
+        .badge-date {
+            font-size: 9px;
+            color: #8a2be2;
+            margin-top: 6px;
+            font-style: italic;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(180deg, #1a0a2e 0%, #2a1a3e 100%);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            border: 2px solid #8a2be2;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: #ff0000;
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .modal-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .modal-item-icon {
+            font-size: 36px;
+        }
+
+        .modal-item-info {
+            flex: 1;
+        }
+
+        .modal-item-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .modal-item-details {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .claim-button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            border: none;
+            border-radius: 8px;
+            color: #1a0a2e;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .claim-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .claim-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .claim-all-button {
+            padding: 6px 12px;
+            margin: 10px auto;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 6px;
+            color: #10b981;
+            font-weight: 500;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: auto;
+        }
+
+        .claim-all-button:hover {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .claim-all-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Stats Tab */
+        .stats-container {
+            padding: 20px;
+        }
+
+        .stats-main-title {
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .chart-section {
+            background: rgba(10, 10, 31, 0.5);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .chart-subtitle {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .chart-section canvas {
+            width: 100%;
+            height: 400px;
+            display: block;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            animation: slideIn 0.5s ease, slideOut 0.5s ease 2.5s;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Activity Tab */
+        .activity-container {
+            padding: 20px 0;
+        }
+
+        .activity-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-button {
+            padding: 8px 16px;
+            border: 2px solid rgba(138, 43, 226, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #aaa;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .filter-button:hover {
+            border-color: rgba(138, 43, 226, 0.6);
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .filter-button.active {
+            border-color: #8a2be2;
+            background: rgba(138, 43, 226, 0.2);
+            color: #fff;
+        }
+
+        .filter-button[data-filter="poke-pack"].active {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.2);
+        }
+
+        .filter-button[data-filter="nft-pack"].active {
+            border-color: #06b6d4;
+            background: rgba(6, 182, 212, 0.2);
+        }
+
+        .filter-button[data-filter="nft-purchase"].active {
+            border-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .filter-button[data-filter="lucky-buy"].active {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .filter-button[data-filter="reward"].active {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.2);
+        }
+
+        .filter-button[data-filter="level"].active {
+            border-color: #8a2be2;
+            background: rgba(138, 43, 226, 0.2);
+        }
+
+        .filter-button[data-filter="pack"].active {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.2);
+        }
+
+        .activity-table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .activity-table thead {
+            background: rgba(138, 43, 226, 0.2);
+        }
+
+        .activity-table th {
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .activity-table td {
+            padding: 12px 15px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .activity-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .activity-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            font-size: 16px;
+            margin-right: 8px;
+        }
+
+        .activity-type {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .activity-description {
+            color: #aaa;
+        }
+
+        .activity-xp {
+            color: #8a2be2;
+            font-weight: bold;
+        }
+
+        .activity-timestamp {
+            color: #666;
+            font-size: 11px;
+        }
+
+        /* Activity Type Colors */
+        .activity-row-purchase {
+            border-left: 3px solid #10b981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .activity-row-purchase:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* Purchase Subtype Colors */
+        .activity-row-poke-pack {
+            border-left: 3px solid #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .activity-row-poke-pack:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .activity-row-nft-pack {
+            border-left: 3px solid #06b6d4;
+            background: rgba(6, 182, 212, 0.05);
+        }
+
+        .activity-row-nft-pack:hover {
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .activity-row-nft-purchase {
+            border-left: 3px solid #8b5cf6;
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .activity-row-nft-purchase:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .activity-row-lucky-buy {
+            border-left: 3px solid #10b981;
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .activity-row-lucky-buy:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .activity-row-reward {
+            border-left: 3px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .activity-row-reward:hover {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .activity-row-level {
+            border-left: 3px solid #8a2be2;
+            background: rgba(138, 43, 226, 0.05);
+        }
+
+        .activity-row-level:hover {
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .activity-row-pack {
+            border-left: 3px solid #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .activity-row-pack:hover {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .empty-activity {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-activity-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="rewards">Rewards</button>
+            <button class="nav-tab" data-tab="rewards-v2">Rewards V2</button>
+            <button class="nav-tab" data-tab="stats">Stats</button>
+            <button class="nav-tab" data-tab="staking">Staking</button>
+            <button class="nav-tab" data-tab="referrals">Referrals</button>
+            <button class="nav-tab" data-tab="activity">Activity</button>
+        </div>
+
+        <!-- Rewards Tab -->
+        <div id="rewards-tab" class="tab-content">
+            <!-- User Profile -->
+            <div class="user-profile">
+                <div class="user-profile-left">
+                    <div class="avatar">
+                        🎮
+                        <div class="avatar-level" id="avatar-level">1</div>
+                    </div>
+                    <div class="user-info">
+                        <h2>Reward_Tester</h2>
+                        <div class="user-xp" id="user-xp">0/500 XP</div>
+                    </div>
+                </div>
+                <div class="user-profile-right">
+                    <div class="profile-stat">
+                        <div class="profile-stat-label">Total Spend</div>
+                        <div class="profile-stat-value" id="total-spend">$0</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-label">Expected Revenue</div>
+                        <div class="profile-stat-value" id="expected-revenue">$0</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-label">Rewards Value</div>
+                        <div class="profile-stat-value" id="rewards-value">$0</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-label">% Revenue Returned</div>
+                        <div class="profile-stat-value" id="revenue-returned">0%</div>
+                    </div>
+                    <button class="reset-progress-btn" onclick="resetProgress()">Reset Progress</button>
+                </div>
+            </div>
+
+            <!-- XP Controls -->
+            <div class="xp-controls">
+                <div class="xp-section">
+                    <div class="xp-section-label">Pokémon Packs</div>
+                    <div class="button-row">
+                        <button class="xp-button pack-button" onclick="addXP(100, 10, 0.025, 'poke-pack')">Silver Pack ($10)</button>
+                        <button class="xp-button pack-button" onclick="addXP(250, 25, 0.025, 'poke-pack')">Gold Pack ($25)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button pack-button" onclick="addXP(500, 50, 0.025, 'poke-pack')">Sapphire Pack ($50)</button>
+                        <button class="xp-button pack-button" onclick="addXP(2500, 250, 0.025, 'poke-pack')">Emerald Pack ($250)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button pack-button" onclick="addXP(10000, 1000, 0.025, 'poke-pack')">$1000 Poke Pack</button>
+                    </div>
+                </div>
+                <div class="xp-section">
+                    <div class="xp-section-label">NFT Packs</div>
+                    <div class="button-row">
+                        <button class="xp-button nft-button" onclick="addXP(700, 35, 0.05, 'nft-pack')">Gold NFT Pack ($35)</button>
+                        <button class="xp-button nft-button" onclick="addXP(2000, 100, 0.05, 'nft-pack')">Platinum NFT Pack ($100)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button nft-button" onclick="addXP(3000, 150, 0.05, 'nft-pack')">ETH NFT Pack ($150)</button>
+                        <button class="xp-button nft-button" onclick="addXP(6000, 300, 0.05, 'nft-pack')">ETH NFT Pack ($300)</button>
+                    </div>
+                </div>
+                <div class="xp-section">
+                    <div class="xp-section-label">Lucky Buys</div>
+                    <div class="button-row">
+                        <button class="xp-button lucky-button" onclick="addXP(1000, 50, 0.05, 'lucky-buy')">Lucky Buy ($50)</button>
+                        <button class="xp-button lucky-button" onclick="addXP(2000, 100, 0.05, 'lucky-buy')">Lucky Buy ($100)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button lucky-button" onclick="addXP(10000, 500, 0.05, 'lucky-buy')">Lucky Buy ($500)</button>
+                    </div>
+                </div>
+                <div class="xp-section">
+                    <div class="xp-section-label">NFT Purchases</div>
+                    <div class="button-row">
+                        <button class="xp-button nft-purchase-button" onclick="addXP(400, 50, 0.02, 'nft-purchase')">NFT Purchase ($50)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button nft-purchase-button" onclick="addXP(800, 100, 0.02, 'nft-purchase')">NFT Purchase ($100)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button nft-purchase-button" onclick="addXP(4000, 500, 0.02, 'nft-purchase')">NFT Purchase ($500)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rewards Track -->
+            <div class="rewards-section">
+                <p class="section-subtitle">Unlock rewards by earning XP and progressing through the levels. Your progress resets each month.</p>
+                <div class="rewards-track-container">
+                    <div class="rewards-track" id="rewards-track"></div>
+                </div>
+                <button class="claim-all-button" onclick="claimAllRewards()">Claim All Available Rewards</button>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+                    <div class="progress-text" id="progress-text">0/500 XP</div>
+                </div>
+            </div>
+
+            <!-- Inventory and Badges Section -->
+            <div class="inventory-badges-container">
+                <div class="inventory-column">
+                    <h3 class="inventory-title">Inventory</h3>
+                    <div id="inventory-content-area" class="inventory-grid"></div>
+                </div>
+                <div class="badges-column" id="badges-column">
+                    <div class="badges-header">
+                        <div class="badges-header-left">
+                            <button class="badges-toggle" onclick="toggleBadges()" title="Collapse badges">
+                                <span id="badges-toggle-icon">◧</span>
+                            </button>
+                            <h3 class="badges-title">Your Badges</h3>
+                        </div>
+                        <button class="badges-filter" title="Filter badges">☰</button>
+                    </div>
+                    <div id="badges-content-area" class="badges-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rewards V2 Tab -->
+        <div id="rewards-v2-tab" class="tab-content hidden">
+            <!-- User Profile -->
+            <div class="user-profile">
+                <div class="user-profile-left">
+                    <div class="avatar">
+                        🎮
+                        <div class="avatar-level" id="avatar-level-v2">1</div>
+                    </div>
+                    <div class="user-info">
+                        <h2>Reward_Tester</h2>
+                        <div class="user-xp" id="user-xp-v2">0/500 XP</div>
+                    </div>
+                </div>
+                <div class="user-profile-right">
+                    <div class="profile-stat">
+                        <div class="profile-stat-label">Total Spend</div>
+                        <div class="profile-stat-value" id="total-spend-v2">$0</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-label">Expected Revenue</div>
+                        <div class="profile-stat-value" id="expected-revenue-v2">$0</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-label">Rewards Value</div>
+                        <div class="profile-stat-value" id="rewards-value-v2">$0</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-label">% Revenue Returned</div>
+                        <div class="profile-stat-value" id="revenue-returned-v2">0%</div>
+                    </div>
+                    <button class="reset-progress-btn" onclick="resetProgress()">Reset Progress</button>
+                </div>
+            </div>
+
+            <!-- XP Controls -->
+            <div class="xp-controls">
+                <div class="xp-section">
+                    <div class="xp-section-label">Pokémon Packs</div>
+                    <div class="button-row">
+                        <button class="xp-button pack-button" onclick="addXP(100, 10, 0.025, 'poke-pack')">Silver Pack ($10)</button>
+                        <button class="xp-button pack-button" onclick="addXP(250, 25, 0.025, 'poke-pack')">Gold Pack ($25)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button pack-button" onclick="addXP(500, 50, 0.025, 'poke-pack')">Sapphire Pack ($50)</button>
+                        <button class="xp-button pack-button" onclick="addXP(2500, 250, 0.025, 'poke-pack')">Emerald Pack ($250)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button pack-button" onclick="addXP(10000, 1000, 0.025, 'poke-pack')">$1000 Poke Pack</button>
+                    </div>
+                </div>
+                <div class="xp-section">
+                    <div class="xp-section-label">NFT Packs</div>
+                    <div class="button-row">
+                        <button class="xp-button nft-button" onclick="addXP(700, 35, 0.05, 'nft-pack')">Gold NFT Pack ($35)</button>
+                        <button class="xp-button nft-button" onclick="addXP(2000, 100, 0.05, 'nft-pack')">Platinum NFT Pack ($100)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button nft-button" onclick="addXP(3000, 150, 0.05, 'nft-pack')">ETH NFT Pack ($150)</button>
+                        <button class="xp-button nft-button" onclick="addXP(6000, 300, 0.05, 'nft-pack')">ETH NFT Pack ($300)</button>
+                    </div>
+                </div>
+                <div class="xp-section">
+                    <div class="xp-section-label">Lucky Buys</div>
+                    <div class="button-row">
+                        <button class="xp-button lucky-button" onclick="addXP(1000, 50, 0.05, 'lucky-buy')">Lucky Buy ($50)</button>
+                        <button class="xp-button lucky-button" onclick="addXP(2000, 100, 0.05, 'lucky-buy')">Lucky Buy ($100)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button lucky-button" onclick="addXP(10000, 500, 0.05, 'lucky-buy')">Lucky Buy ($500)</button>
+                    </div>
+                </div>
+                <div class="xp-section">
+                    <div class="xp-section-label">NFT Purchases</div>
+                    <div class="button-row">
+                        <button class="xp-button nft-purchase-button" onclick="addXP(400, 50, 0.02, 'nft-purchase')">NFT Purchase ($50)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button nft-purchase-button" onclick="addXP(800, 100, 0.02, 'nft-purchase')">NFT Purchase ($100)</button>
+                    </div>
+                    <div class="button-row">
+                        <button class="xp-button nft-purchase-button" onclick="addXP(4000, 500, 0.02, 'nft-purchase')">NFT Purchase ($500)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rewards Track -->
+            <div class="rewards-section">
+                <p class="section-subtitle">Unlock rewards by earning XP and progressing through the levels. Your progress resets each month.</p>
+                <div class="rewards-track-container">
+                    <div class="rewards-track" id="rewards-track-v2"></div>
+                </div>
+                <button class="claim-all-button" onclick="claimAllRewards()">Claim All Available Rewards</button>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar-v2" style="width: 0%"></div>
+                    <div class="progress-text" id="progress-text-v2">0/500 XP</div>
+                </div>
+            </div>
+
+            <!-- Missions Section -->
+            <div class="rewards-section">
+                <h3 class="section-title">Missions</h3>
+                <p class="section-subtitle">Earn extra XP by completing individual Missions</p>
+                <div class="missions-grid" id="missions-grid"></div>
+            </div>
+
+            <!-- Inventory and Badges Section -->
+            <div class="inventory-badges-container">
+                <div class="inventory-column">
+                    <h3 class="inventory-title">Inventory</h3>
+                    <div id="inventory-content-area-v2" class="inventory-grid"></div>
+                </div>
+                <div class="badges-column" id="badges-column-v2">
+                    <div class="badges-header">
+                        <div class="badges-header-left">
+                            <button class="badges-toggle" onclick="toggleBadgesV2()" title="Collapse badges">
+                                <span id="badges-toggle-icon-v2">◧</span>
+                            </button>
+                            <h3 class="badges-title">Your Badges</h3>
+                        </div>
+                        <button class="badges-filter" title="Filter badges">☰</button>
+                    </div>
+                    <div id="badges-content-area-v2" class="badges-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Tab -->
+        <div id="stats-tab" class="tab-content hidden">
+            <div class="stats-container">
+                <h2 class="stats-main-title">Rewards System Statistics</h2>
+
+                <!-- User Distribution Chart -->
+                <div class="chart-section">
+                    <h3 class="chart-title">Expected Users by Level</h3>
+                    <p class="chart-subtitle">Distribution of users across all 50 levels</p>
+                    <canvas id="user-distribution-chart"></canvas>
+                </div>
+
+                <!-- Rewards Value Curve -->
+                <div class="chart-section">
+                    <h3 class="chart-title">Cumulative Rewards Value by Level</h3>
+                    <p class="chart-subtitle">Total value of rewards earned up to each level</p>
+                    <canvas id="rewards-value-chart"></canvas>
+                </div>
+
+                <!-- XP Curve -->
+                <div class="chart-section">
+                    <h3 class="chart-title">XP Requirements by Level</h3>
+                    <p class="chart-subtitle">Cumulative XP required to reach each level</p>
+                    <canvas id="xp-curve-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Tab -->
+        <div id="activity-tab" class="tab-content hidden">
+            <div class="activity-container">
+                <h2 class="stats-main-title">Activity Log</h2>
+                <p class="section-subtitle">Track all your purchases, rewards, level ups, and pack openings</p>
+
+                <!-- Activity Filters -->
+                <div class="activity-filters">
+                    <button class="filter-button active" data-filter="all">All Activities</button>
+                    <button class="filter-button" data-filter="poke-pack">Poke Packs</button>
+                    <button class="filter-button" data-filter="nft-pack">NFT Packs</button>
+                    <button class="filter-button" data-filter="nft-purchase">NFT Purchases</button>
+                    <button class="filter-button" data-filter="lucky-buy">Lucky Buys</button>
+                    <button class="filter-button" data-filter="reward">Reward Claims</button>
+                    <button class="filter-button" data-filter="level">Level Ups</button>
+                    <button class="filter-button" data-filter="pack">Pack Openings</button>
+                </div>
+
+                <!-- Activity Table -->
+                <div class="activity-table-container">
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>XP Earned</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activity-table-body">
+                            <!-- Activity rows will be inserted here -->
+                        </tbody>
+                    </table>
+                    <div id="empty-activity" class="empty-activity hidden">
+                        <div class="empty-activity-icon">📋</div>
+                        <p>No activities yet. Start making purchases to track your progress!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Reward Details -->
+    <div class="modal" id="reward-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 class="modal-title" id="modal-title">Reward Bundle</h2>
+            <div class="modal-items" id="modal-items"></div>
+            <button class="claim-button" id="claim-button" onclick="claimCurrentReward()">Claim Reward</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            totalXP: 0,  // Now we only track total cumulative XP
+            currentLevel: 0,
+            inventory: [],
+            claimedRewards: [],
+            earnedBadges: [],
+            missions: [],
+            totalSpend: 0,  // Track total user spend
+            totalRewardsValue: 0,  // Track total $ value of rewards claimed
+            totalExpectedRevenue: 0,  // Track total expected revenue based on actual margins
+            activityLog: []  // Track all user activities with timestamps
+        };
+
+        // Level XP Requirements (50 levels) - Cumulative totals (round up)
+        const levelRequirements = [
+            0, 6000, 12000, 20000, 31000, 42000, 56000, 72000, 91000, 113000, 138000,
+            167000, 199000, 287000, 343000, 400000, 465000, 536000, 608000, 687000, 740000,
+            808000, 840000, 1064000, 1215000, 1315000, 1485000, 1600000, 1765000, 1905000, 2100000,
+            2280000, 2413000, 2610000, 2790000, 3000000, 3190000, 3390000, 3625000, 4020000, 4300000,
+            4485000, 4850000, 5250000, 5650000, 6000000, 6250000, 6750000, 7200000, 7650000, 8000000
+        ];
+
+        // Pack type definitions with icons and values
+        const packTypes = {
+            silver: { name: "$10.00 Silver NFT Pack", icon: "📦", color: "#C0C0C0", value: 10 },
+            gold: { name: "$25.00 Gold Poke Pack", icon: "🎁", color: "#FFD700", value: 25 },
+            goldNFT: { name: "$35.00 Gold NFT Pack", icon: "💎", color: "#FFD700", value: 35 },
+            sapphire: { name: "$50.00 Sapphire Poke Pack", icon: "💠", color: "#0F52BA", value: 50 },
+            platinum: { name: "$100.00 Platinum NFT Pack", icon: "⭐", color: "#E5E4E2", value: 100 },
+            emerald: { name: "$250.00 Emerald Poke Pack", icon: "💚", color: "#50C878", value: 250 }
+        };
+
+        // Revenue margins for different purchase types
+        const MARGINS = {
+            pokemonPack: 0.025,  // 2.5% house edge
+            nftPack: 0.05,       // 5% house edge
+            nftPurchase: 0.02,   // 2% fee
+            luckyBuy: 0.05       // 5% house edge
+        };
+
+        // Reward Definitions - Exact mapping from spreadsheet (50 levels)
+        const rewards = [
+            { level: 1, packs: [{ type: "silver", count: 1 }] },
+            { level: 2, packs: [{ type: "silver", count: 1 }] },
+            { level: 3, packs: [{ type: "silver", count: 1 }] },
+            { level: 4, packs: [{ type: "silver", count: 1 }] },
+            { level: 5, packs: [{ type: "silver", count: 1 }] },
+            { level: 6, packs: [{ type: "silver", count: 1 }] },
+            { level: 7, packs: [{ type: "silver", count: 1 }] },
+            { level: 8, packs: [{ type: "gold", count: 1 }] },
+            { level: 9, packs: [{ type: "gold", count: 1 }] },
+            { level: 10, packs: [{ type: "goldNFT", count: 1 }, { type: "gold", count: 1 }, { type: "silver", count: 1 }], milestone: true },
+            { level: 11, packs: [{ type: "gold", count: 1 }] },
+            { level: 12, packs: [{ type: "gold", count: 1 }] },
+            { level: 13, packs: [{ type: "gold", count: 1 }, { type: "silver", count: 1 }] },
+            { level: 14, packs: [{ type: "gold", count: 1 }, { type: "silver", count: 1 }] },
+            { level: 15, packs: [{ type: "gold", count: 1 }, { type: "silver", count: 2 }] },
+            { level: 16, packs: [{ type: "gold", count: 1 }, { type: "silver", count: 2 }] },
+            { level: 17, packs: [{ type: "gold", count: 1 }, { type: "silver", count: 2 }] },
+            { level: 18, packs: [{ type: "goldNFT", count: 1 }, { type: "silver", count: 2 }] },
+            { level: 19, packs: [{ type: "goldNFT", count: 1 }, { type: "silver", count: 2 }] },
+            { level: 20, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 1 }, { type: "silver", count: 1 }], milestone: true },
+            { level: 21, packs: [{ type: "goldNFT", count: 1 }, { type: "gold", count: 1 }, { type: "silver", count: 1 }] },
+            { level: 22, packs: [{ type: "goldNFT", count: 1 }, { type: "gold", count: 1 }, { type: "silver", count: 1 }] },
+            { level: 23, packs: [{ type: "goldNFT", count: 1 }, { type: "gold", count: 1 }, { type: "silver", count: 1 }] },
+            { level: 24, packs: [{ type: "goldNFT", count: 1 }, { type: "gold", count: 2 }, { type: "silver", count: 1 }] },
+            { level: 25, packs: [{ type: "goldNFT", count: 1 }, { type: "gold", count: 2 }, { type: "silver", count: 1 }] },
+            { level: 26, packs: [{ type: "goldNFT", count: 1 }, { type: "gold", count: 2 }, { type: "silver", count: 1 }] },
+            { level: 27, packs: [{ type: "goldNFT", count: 1 }, { type: "gold", count: 2 }, { type: "silver", count: 2 }] },
+            { level: 28, packs: [{ type: "goldNFT", count: 1 }, { type: "gold", count: 2 }, { type: "silver", count: 2 }] },
+            { level: 29, packs: [{ type: "goldNFT", count: 1 }, { type: "gold", count: 2 }, { type: "silver", count: 2 }] },
+            { level: 30, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 1 }, { type: "silver", count: 2 }], milestone: true },
+            { level: 31, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 1 }, { type: "silver", count: 1 }] },
+            { level: 32, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 1 }, { type: "silver", count: 1 }] },
+            { level: 33, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 1 }, { type: "silver", count: 2 }] },
+            { level: 34, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 1 }, { type: "silver", count: 2 }] },
+            { level: 35, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 2 }, { type: "silver", count: 2 }] },
+            { level: 36, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 2 }, { type: "silver", count: 2 }] },
+            { level: 37, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 2 }, { type: "silver", count: 2 }] },
+            { level: 38, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 1 }, { type: "silver", count: 2 }] },
+            { level: 39, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 2 }, { type: "silver", count: 1 }] },
+            { level: 40, packs: [{ type: "sapphire", count: 3 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 2 }], milestone: true },
+            { level: 41, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 2 }, { type: "silver", count: 1 }] },
+            { level: 42, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 2 }, { type: "silver", count: 1 }] },
+            { level: 43, packs: [{ type: "sapphire", count: 1 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 2 }, { type: "silver", count: 1 }] },
+            { level: 44, packs: [{ type: "sapphire", count: 2 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 1 }] },
+            { level: 45, packs: [{ type: "sapphire", count: 2 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 1 }] },
+            { level: 46, packs: [{ type: "sapphire", count: 2 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 1 }] },
+            { level: 47, packs: [{ type: "sapphire", count: 2 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 1 }] },
+            { level: 48, packs: [{ type: "sapphire", count: 2 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 1 }] },
+            { level: 49, packs: [{ type: "sapphire", count: 2 }, { type: "goldNFT", count: 2 }, { type: "gold", count: 2 }] },
+            { level: 50, packs: [{ type: "emerald", count: 1 }, { type: "sapphire", count: 2 }, { type: "goldNFT", count: 1 }, { type: "gold", count: 2 }], milestone: true }
+        ];
+
+        // Badge Definitions
+        const badges = [
+            { id: "level-10", name: "Level 10", icon: "🏅", description: "Reached Level 10 in February 2026 Season", type: "milestone", requirement: 10, earned: false },
+            { id: "level-20", name: "Level 20", icon: "🥈", description: "Reached Level 20", type: "milestone", requirement: 20, earned: false },
+            { id: "level-30", name: "Level 30", icon: "🥇", description: "Reached Level 30", type: "milestone", requirement: 30, earned: false },
+            { id: "level-40", name: "Level 40", icon: "💎", description: "Reached Level 40", type: "milestone", requirement: 40, earned: false },
+            { id: "level-50", name: "Level 50", icon: "👑", description: "Reached Level 50 - Maximum Level!", type: "milestone", requirement: 50, earned: false },
+            { id: "xp-10k", name: "10K XP", icon: "🛡️", description: "Lifetime XP earned exceeds 10k", type: "lifetime", requirement: 10000, earned: false },
+            { id: "xp-50k", name: "50K XP", icon: "🛡️", description: "Lifetime XP earned exceeds 50k", type: "lifetime", requirement: 50000, earned: false },
+            { id: "xp-100k", name: "100K XP", icon: "🛡️", description: "Lifetime XP earned exceeds 100k", type: "lifetime", requirement: 100000, earned: false },
+            { id: "xp-250k", name: "250K XP", icon: "🛡️", description: "Lifetime XP earned exceeds 250k", type: "lifetime", requirement: 250000, earned: false },
+            { id: "xp-500k", name: "500K XP", icon: "🛡️", description: "Lifetime XP earned exceeds 500k", type: "lifetime", requirement: 500000, earned: false },
+            { id: "xp-1m", name: "1M XP", icon: "🛡️", description: "Lifetime XP earned exceeds 1 million", type: "lifetime", requirement: 1000000, earned: false },
+            { id: "xp-5m", name: "5M XP", icon: "🛡️", description: "Lifetime XP earned exceeds 5 million", type: "lifetime", requirement: 5000000, earned: false },
+            { id: "xp-10m", name: "10M XP", icon: "🛡️", description: "Lifetime XP earned exceeds 10 million", type: "lifetime", requirement: 10000000, earned: false }
+        ];
+
+        // Mission Categories - Sequential Tier System
+        const missionCategories = {
+            packs: {
+                name: "Packs",
+                icon: "📦",
+                tiers: [
+                    { tier: 1, description: "Open 3 Packs", maxProgress: 3, xpReward: 100 },
+                    { tier: 2, description: "Open 5 Packs", maxProgress: 5, xpReward: 200 },
+                    { tier: 3, description: "Open 7 Packs", maxProgress: 7, xpReward: 300 },
+                    { tier: 4, description: "Open 10 Packs", maxProgress: 10, xpReward: 400 },
+                    { tier: 5, description: "Open 12 Packs", maxProgress: 12, xpReward: 500 },
+                    { tier: 6, description: "Open 15 Packs", maxProgress: 15, xpReward: 600 },
+                    { tier: 7, description: "Open 18 Packs", maxProgress: 18, xpReward: 700 },
+                    { tier: 8, description: "Open 20 Packs", maxProgress: 20, xpReward: 800 },
+                    { tier: 9, description: "Open 25 Packs", maxProgress: 25, xpReward: 900 },
+                    { tier: 10, description: "Open 30 Packs", maxProgress: 30, xpReward: 1000 }
+                ]
+            },
+            luckyBuy: {
+                name: "Lucky Buy",
+                icon: "🍀",
+                tiers: [
+                    { tier: 1, description: "Enter 3 Lucky Buys", maxProgress: 3, xpReward: 100 },
+                    { tier: 2, description: "Enter 5 Lucky Buys", maxProgress: 5, xpReward: 200 },
+                    { tier: 3, description: "Enter 8 Lucky Buys", maxProgress: 8, xpReward: 300 },
+                    { tier: 4, description: "Enter 10 Lucky Buys", maxProgress: 10, xpReward: 400 },
+                    { tier: 5, description: "Enter 12 Lucky Buys", maxProgress: 12, xpReward: 500 },
+                    { tier: 6, description: "Enter 15 Lucky Buys", maxProgress: 15, xpReward: 600 },
+                    { tier: 7, description: "Enter 18 Lucky Buys", maxProgress: 18, xpReward: 700 },
+                    { tier: 8, description: "Enter 20 Lucky Buys", maxProgress: 20, xpReward: 800 },
+                    { tier: 9, description: "Enter 25 Lucky Buys", maxProgress: 25, xpReward: 900 },
+                    { tier: 10, description: "Enter 30 Lucky Buys", maxProgress: 30, xpReward: 1000 }
+                ]
+            },
+            nfts: {
+                name: "NFTs",
+                icon: "🎨",
+                tiers: [
+                    { tier: 1, description: "Buy 2 NFTs", maxProgress: 2, xpReward: 100 },
+                    { tier: 2, description: "Buy 3 NFTs", maxProgress: 3, xpReward: 200 },
+                    { tier: 3, description: "Buy 5 NFTs", maxProgress: 5, xpReward: 300 },
+                    { tier: 4, description: "Buy 7 NFTs", maxProgress: 7, xpReward: 400 },
+                    { tier: 5, description: "Buy 10 NFTs", maxProgress: 10, xpReward: 500 },
+                    { tier: 6, description: "Buy 12 NFTs", maxProgress: 12, xpReward: 600 },
+                    { tier: 7, description: "Buy 15 NFTs", maxProgress: 15, xpReward: 700 },
+                    { tier: 8, description: "Buy 18 NFTs", maxProgress: 18, xpReward: 800 },
+                    { tier: 9, description: "Buy 20 NFTs", maxProgress: 20, xpReward: 900 },
+                    { tier: 10, description: "Buy 25 NFTs", maxProgress: 25, xpReward: 1000 }
+                ]
+            },
+            hybrid: {
+                name: "Hybrid",
+                icon: "💰",
+                tiers: [
+                    { tier: 1, description: "Spend $50 across entertainment", maxProgress: 50, xpReward: 100 },
+                    { tier: 2, description: "Spend $100 across entertainment", maxProgress: 100, xpReward: 200 },
+                    { tier: 3, description: "Spend $200 across entertainment", maxProgress: 200, xpReward: 300 },
+                    { tier: 4, description: "Spend $300 across entertainment", maxProgress: 300, xpReward: 400 },
+                    { tier: 5, description: "Spend $500 across entertainment", maxProgress: 500, xpReward: 500 },
+                    { tier: 6, description: "Spend $750 across entertainment", maxProgress: 750, xpReward: 600 },
+                    { tier: 7, description: "Spend $1000 across entertainment", maxProgress: 1000, xpReward: 700 },
+                    { tier: 8, description: "Spend $1500 across entertainment", maxProgress: 1500, xpReward: 800 },
+                    { tier: 9, description: "Spend $2000 across entertainment", maxProgress: 2000, xpReward: 900 },
+                    { tier: 10, description: "Spend $3000 across entertainment", maxProgress: 3000, xpReward: 1000 }
+                ]
+            }
+        };
+
+        // Initialize missions with sequential tier system
+        function initializeMissions() {
+            gameState.missionProgress = {
+                packs: { currentTier: 1, progress: 0 },
+                luckyBuy: { currentTier: 1, progress: 0 },
+                nfts: { currentTier: 1, progress: 0 },
+                hybrid: { currentTier: 1, progress: 0 }
+            };
+        }
+
+        // Load game state from localStorage
+        function loadGameState() {
+            const saved = localStorage.getItem('rewardsGameState');
+            if (saved) {
+                const savedState = JSON.parse(saved);
+
+                // Migrate old save data
+                if (savedState.currentXP !== undefined) {
+                    // Old format: had currentXP and currentLevel
+                    // Calculate totalXP from old data
+                    savedState.totalXP = savedState.totalXP || savedState.currentXP || 0;
+                    delete savedState.currentXP;
+                }
+
+                // Migrate old missions format
+                if (savedState.missions && !savedState.missionProgress) {
+                    delete savedState.missions;
+                }
+
+                gameState = { ...gameState, ...savedState };
+
+                // Ensure mission progress exists
+                if (!gameState.missionProgress) {
+                    initializeMissions();
+                }
+
+                // Ensure activity log exists (for backwards compatibility)
+                if (!gameState.activityLog) {
+                    gameState.activityLog = [];
+                }
+            } else {
+                initializeMissions();
+            }
+        }
+
+        // Save game state to localStorage
+        function saveGameState() {
+            localStorage.setItem('rewardsGameState', JSON.stringify(gameState));
+        }
+
+        // Log activity
+        function logActivity(type, description, xp = 0, subtype = null) {
+            const activity = {
+                type: type, // 'purchase', 'reward', 'level', 'pack'
+                subtype: subtype, // For purchases: 'poke-pack', 'nft-pack', 'nft-purchase', 'lucky-buy'
+                description: description,
+                xp: xp,
+                timestamp: new Date().toISOString()
+            };
+            gameState.activityLog.unshift(activity); // Add to beginning for chronological order (newest first)
+
+            // Limit activity log to last 500 entries to prevent excessive storage
+            if (gameState.activityLog.length > 500) {
+                gameState.activityLog = gameState.activityLog.slice(0, 500);
+            }
+        }
+
+        // Format timestamp for display
+        function formatTimestamp(isoString) {
+            const date = new Date(isoString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Get icon for activity type
+        function getActivityIcon(type, subtype = null) {
+            // If it's a purchase, use subtype-specific icon
+            if (type === 'purchase' && subtype) {
+                const subtypeIcons = {
+                    'poke-pack': '🎴',
+                    'nft-pack': '💎',
+                    'nft-purchase': '🖼️',
+                    'lucky-buy': '🍀'
+                };
+                return subtypeIcons[subtype] || '💰';
+            }
+
+            const icons = {
+                purchase: '💰',
+                reward: '🎁',
+                level: '⬆️',
+                pack: '📦'
+            };
+            return icons[type] || '📝';
+        }
+
+        // Update activity table
+        function updateActivityTable(filterType = 'all') {
+            const tbody = document.getElementById('activity-table-body');
+            const emptyState = document.getElementById('empty-activity');
+
+            if (!tbody) return;
+
+            // Filter activities
+            let filteredActivities = gameState.activityLog;
+            if (filterType !== 'all') {
+                // Check if filter is for a purchase subtype
+                if (['poke-pack', 'nft-pack', 'nft-purchase', 'lucky-buy'].includes(filterType)) {
+                    filteredActivities = gameState.activityLog.filter(activity =>
+                        activity.type === 'purchase' && activity.subtype === filterType
+                    );
+                } else {
+                    // Filter by main type (reward, level, pack)
+                    filteredActivities = gameState.activityLog.filter(activity => activity.type === filterType);
+                }
+            }
+
+            // Show empty state if no activities
+            if (filteredActivities.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            // Render activities
+            tbody.innerHTML = filteredActivities.map(activity => {
+                // Use subtype for row styling if it's a purchase, otherwise use type
+                const rowClass = activity.type === 'purchase' && activity.subtype
+                    ? `activity-row-${activity.subtype}`
+                    : `activity-row-${activity.type}`;
+
+                // Get display label for the type
+                let typeLabel = activity.type.charAt(0).toUpperCase() + activity.type.slice(1);
+                if (activity.type === 'purchase' && activity.subtype) {
+                    const subtypeLabels = {
+                        'poke-pack': 'Poke Pack',
+                        'nft-pack': 'NFT Pack',
+                        'nft-purchase': 'NFT Purchase',
+                        'lucky-buy': 'Lucky Buy'
+                    };
+                    typeLabel = subtypeLabels[activity.subtype] || 'Purchase';
+                }
+
+                return `
+                    <tr class="${rowClass}">
+                        <td>
+                            <span class="activity-type">
+                                <span class="activity-icon">${getActivityIcon(activity.type)}</span>
+                                ${typeLabel}
+                            </span>
+                        </td>
+                        <td class="activity-description">${activity.description}</td>
+                        <td class="activity-xp">${activity.xp > 0 ? '+' + activity.xp.toLocaleString() + ' XP' : '-'}</td>
+                        <td class="activity-timestamp">${formatTimestamp(activity.timestamp)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Handle activity filter clicks
+        function setupActivityFilters() {
+            const filterButtons = document.querySelectorAll('.filter-button');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Update active state
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // Update table
+                    const filterType = button.getAttribute('data-filter');
+                    updateActivityTable(filterType);
+                });
+            });
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Calculate current level based on total XP
+        function calculateLevel() {
+            for (let i = levelRequirements.length - 1; i >= 0; i--) {
+                if (gameState.totalXP >= levelRequirements[i]) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        // Add XP
+        function addXP(amount, spendAmount = 0, marginPercent = 0, category = 'poke-pack') {
+            const oldLevel = gameState.currentLevel;
+            gameState.totalXP += amount;
+            gameState.currentLevel = calculateLevel();
+
+            // Track spend and expected revenue if provided
+            if (spendAmount > 0) {
+                gameState.totalSpend += spendAmount;
+                gameState.totalExpectedRevenue += spendAmount * marginPercent;
+
+                // Log purchase activity with descriptive text
+                let description = '';
+                let subtype = category;
+
+                if (category === 'poke-pack') {
+                    description = `Ripped a $${spendAmount} poke pack`;
+                } else if (category === 'nft-pack') {
+                    description = `Ripped a $${spendAmount} NFT pack`;
+                } else if (category === 'nft-purchase') {
+                    description = `Purchased a $${spendAmount} NFT`;
+                } else if (category === 'lucky-buy') {
+                    description = `$${spendAmount} lucky buy attempt`;
+                }
+
+                logActivity('purchase', description, amount, subtype);
+            }
+
+            // Check for level up
+            if (gameState.currentLevel > oldLevel) {
+                for (let level = oldLevel + 1; level <= gameState.currentLevel; level++) {
+                    showNotification(`🎉 Level Up! You are now Level ${level}!`);
+                    // Log level up activity
+                    logActivity('level', `Reached Level ${level}`, 0);
+                }
+                checkMilestoneBadges();
+            }
+
+            // Check for lifetime XP badges
+            checkLifetimeBadges();
+
+            updateUI();
+            saveGameState();
+            showNotification(`+${amount} XP earned!`);
+        }
+
+        // Get XP required for next level
+        function getXPForNextLevel() {
+            if (gameState.currentLevel >= 50) return Infinity;
+            return levelRequirements[gameState.currentLevel + 1];
+        }
+
+        // Get XP required for current level
+        function getXPForCurrentLevel() {
+            return levelRequirements[gameState.currentLevel];
+        }
+
+        // Get current progress within level
+        function getCurrentLevelProgress() {
+            const currentLevelXP = getXPForCurrentLevel();
+            const nextLevelXP = getXPForNextLevel();
+            const progressInLevel = gameState.totalXP - currentLevelXP;
+            const xpNeededForLevel = nextLevelXP - currentLevelXP;
+            return { progressInLevel, xpNeededForLevel };
+        }
+
+        // Check milestone badges
+        function checkMilestoneBadges() {
+            badges.forEach((badge, index) => {
+                if (badge.type === 'milestone' && !badge.earned && gameState.currentLevel >= badge.requirement) {
+                    badge.earned = true;
+                    badge.earnedDate = new Date().toLocaleDateString();
+                    gameState.earnedBadges.push(badge.id);
+                    showNotification(`🏆 Badge Earned: ${badge.name}!`);
+                }
+            });
+        }
+
+        // Check lifetime XP badges
+        function checkLifetimeBadges() {
+            badges.forEach((badge, index) => {
+                if (badge.type === 'lifetime' && !badge.earned && gameState.totalXP >= badge.requirement) {
+                    badge.earned = true;
+                    badge.earnedDate = new Date().toLocaleDateString();
+                    gameState.earnedBadges.push(badge.id);
+                    showNotification(`🏆 Badge Earned: ${badge.name}!`);
+                }
+            });
+        }
+
+        // Update UI
+        function updateUI(skipScroll = false) {
+            // Update level display (both tabs)
+            document.getElementById('avatar-level').textContent = gameState.currentLevel;
+            if (document.getElementById('avatar-level-v2')) {
+                document.getElementById('avatar-level-v2').textContent = gameState.currentLevel;
+            }
+
+            // Update tracker stats
+            const totalSpend = gameState.totalSpend;
+            const expectedRevenue = gameState.totalExpectedRevenue;
+            const rewardsValue = gameState.totalRewardsValue;
+            const revenueReturnedPercent = expectedRevenue > 0 ? (rewardsValue / expectedRevenue) * 100 : 0;
+
+            document.getElementById('total-spend').textContent = `$${totalSpend.toLocaleString()}`;
+            document.getElementById('expected-revenue').textContent = `$${expectedRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('rewards-value').textContent = `$${rewardsValue.toLocaleString()}`;
+            document.getElementById('revenue-returned').textContent = `${revenueReturnedPercent.toFixed(1)}%`;
+
+            // Duplicate for V2 tab if it exists
+            if (document.getElementById('total-spend-v2')) {
+                document.getElementById('total-spend-v2').textContent = `$${totalSpend.toLocaleString()}`;
+                document.getElementById('expected-revenue-v2').textContent = `$${expectedRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('rewards-value-v2').textContent = `$${rewardsValue.toLocaleString()}`;
+                document.getElementById('revenue-returned-v2').textContent = `${revenueReturnedPercent.toFixed(1)}%`;
+            }
+
+            // Update XP display
+            if (gameState.currentLevel >= 50) {
+                document.getElementById('user-xp').textContent = `${gameState.totalXP.toLocaleString()} XP (MAX LEVEL)`;
+                document.getElementById('progress-text').textContent = 'MAX LEVEL';
+                document.getElementById('progress-bar').style.width = '100%';
+                if (document.getElementById('user-xp-v2')) {
+                    document.getElementById('user-xp-v2').textContent = `${gameState.totalXP.toLocaleString()} XP (MAX LEVEL)`;
+                    document.getElementById('progress-text-v2').textContent = 'MAX LEVEL';
+                    document.getElementById('progress-bar-v2').style.width = '100%';
+                }
+            } else {
+                const { progressInLevel, xpNeededForLevel } = getCurrentLevelProgress();
+                document.getElementById('user-xp').textContent = `${gameState.totalXP.toLocaleString()}/${getXPForNextLevel().toLocaleString()} XP`;
+                document.getElementById('progress-text').textContent = `${progressInLevel.toLocaleString()}/${xpNeededForLevel.toLocaleString()} XP`;
+
+                // Update progress bar
+                const progress = (progressInLevel / xpNeededForLevel) * 100;
+                document.getElementById('progress-bar').style.width = `${progress}%`;
+
+                // Update V2 tab if it exists
+                if (document.getElementById('user-xp-v2')) {
+                    document.getElementById('user-xp-v2').textContent = `${gameState.totalXP.toLocaleString()}/${getXPForNextLevel().toLocaleString()} XP`;
+                    document.getElementById('progress-text-v2').textContent = `${progressInLevel.toLocaleString()}/${xpNeededForLevel.toLocaleString()} XP`;
+                    document.getElementById('progress-bar-v2').style.width = `${progress}%`;
+                }
+            }
+
+            // Update rewards track (both tabs)
+            updateRewardsTrack(skipScroll);
+            updateRewardsTrackV2(skipScroll);
+
+            // Update missions
+            updateMissions();
+
+            // Update inventory (both tabs)
+            updateInventory();
+            updateInventoryV2();
+
+            // Update badges (both tabs)
+            updateBadges();
+            updateBadgesV2();
+        }
+
+        // Calculate total pack count in reward
+        function getTotalPackCount(reward) {
+            return reward.packs.reduce((sum, pack) => sum + pack.count, 0);
+        }
+
+        // Get bundle rarity based on content
+        function getBundleRarity(reward) {
+            const totalPacks = getTotalPackCount(reward);
+            const hasPlatinum = reward.packs.some(p => p.type === 'platinum');
+            const hasSapphire = reward.packs.some(p => p.type === 'sapphire');
+            const hasGoldNFT = reward.packs.some(p => p.type === 'goldNFT');
+
+            if (hasPlatinum || totalPacks >= 5) return 'legendary';
+            if (hasSapphire || totalPacks >= 4) return 'epic';
+            if (hasGoldNFT || totalPacks >= 3) return 'rare';
+            if (totalPacks >= 2) return 'uncommon';
+            return '';
+        }
+
+        // Get bundle name based on rarity
+        function getBundleName(rarity) {
+            const names = {
+                'legendary': 'Legendary Bundle',
+                'epic': 'Epic Bundle',
+                'rare': 'Rare Bundle',
+                'uncommon': 'Uncommon Bundle'
+            };
+            return names[rarity] || 'Bundle';
+        }
+
+        // Get reward bundle name
+        function getRewardBundleName(reward) {
+            if (reward.packs.length === 0) return 'No Reward';
+
+            const totalPacks = getTotalPackCount(reward);
+
+            // Single pack
+            if (totalPacks === 1) {
+                const pack = reward.packs[0];
+                const packInfo = packTypes[pack.type];
+                return packInfo.name;
+            }
+
+            // Multiple packs - show as bundle
+            const rarity = getBundleRarity(reward);
+            return getBundleName(rarity);
+        }
+
+        // Get primary icon for reward
+        function getPrimaryIcon(reward) {
+            if (reward.packs.length === 0) return '🚫';
+
+            const totalPacks = getTotalPackCount(reward);
+
+            // Single pack - show pack-specific icon
+            if (totalPacks === 1) {
+                const packType = reward.packs[0].type;
+                const packInfo = packTypes[packType];
+                return packInfo.icon;
+            }
+
+            // Multiple packs - show chest based on rarity
+            const rarity = getBundleRarity(reward);
+            const chestIcons = {
+                'uncommon': '🗃️',
+                'rare': '💼',
+                'epic': '🧳',
+                'legendary': '⚱️'
+            };
+            return chestIcons[rarity] || '💼';
+        }
+
+        // Update rewards track
+        function updateRewardsTrack(skipScroll = false) {
+            const track = document.getElementById('rewards-track');
+            track.innerHTML = '';
+
+            rewards.forEach(reward => {
+                const node = document.createElement('div');
+                node.className = 'level-node';
+
+                // Add milestone class if this is a milestone level
+                if (reward.milestone) {
+                    node.classList.add('milestone');
+                }
+
+                const bundle = document.createElement('div');
+                bundle.className = 'reward-bundle';
+
+                // Determine status
+                if (gameState.claimedRewards.includes(reward.level)) {
+                    bundle.classList.add('claimed');
+                } else if (gameState.currentLevel >= reward.level) {
+                    bundle.classList.add('ready');
+                } else {
+                    bundle.classList.add('locked');
+                }
+
+                // Add bundle rarity class if it's a multi-pack bundle
+                const totalPacks = getTotalPackCount(reward);
+                if (totalPacks > 1) {
+                    const rarity = getBundleRarity(reward);
+                    if (rarity) {
+                        bundle.classList.add(`bundle-${rarity}`);
+                    }
+                }
+
+                // Add status icon
+                const statusIcon = document.createElement('div');
+                statusIcon.className = 'reward-status';
+                if (gameState.claimedRewards.includes(reward.level)) {
+                    statusIcon.textContent = '✓';
+                } else if (gameState.currentLevel >= reward.level) {
+                    statusIcon.textContent = '⭐';
+                }
+                bundle.appendChild(statusIcon);
+
+                // Add reward icon
+                const icon = document.createElement('div');
+                icon.className = 'reward-icon';
+                icon.textContent = getPrimaryIcon(reward);
+                bundle.appendChild(icon);
+
+                // Add reward name
+                const name = document.createElement('div');
+                name.className = 'reward-name';
+                name.textContent = getRewardBundleName(reward);
+                bundle.appendChild(name);
+
+                // Click handler
+                bundle.onclick = () => openRewardModal(reward);
+
+                node.appendChild(bundle);
+
+                // Add level indicator
+                const levelIndicator = document.createElement('div');
+                levelIndicator.className = 'level-indicator';
+                if (gameState.currentLevel === reward.level) {
+                    levelIndicator.classList.add('current');
+                }
+                levelIndicator.textContent = reward.level;
+                node.appendChild(levelIndicator);
+
+                // Add XP requirement
+                const xpReq = document.createElement('div');
+                xpReq.className = 'xp-requirement';
+                xpReq.textContent = `${levelRequirements[reward.level].toLocaleString()} XP`;
+                node.appendChild(xpReq);
+
+                // Add badge unlock indicator for milestone levels
+                if ([10, 20, 30].includes(reward.level)) {
+                    const badgeUnlock = document.createElement('div');
+                    badgeUnlock.className = 'badge-unlock';
+                    badgeUnlock.textContent = '🏆 Milestone!';
+                    node.appendChild(badgeUnlock);
+                }
+
+                track.appendChild(node);
+            });
+
+            // Scroll to current level (unless skipScroll is true)
+            if (!skipScroll && gameState.currentLevel > 0 && gameState.currentLevel <= 50) {
+                const currentNode = track.children[gameState.currentLevel - 1];
+                if (currentNode) {
+                    currentNode.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            }
+        }
+
+        // Update rewards track V2
+        function updateRewardsTrackV2(skipScroll = false) {
+            const track = document.getElementById('rewards-track-v2');
+            if (!track) return; // Exit if V2 track doesn't exist
+
+            track.innerHTML = '';
+
+            rewards.forEach(reward => {
+                const node = document.createElement('div');
+                node.className = 'level-node';
+
+                // Add milestone class if this is a milestone level
+                if (reward.milestone) {
+                    node.classList.add('milestone');
+                }
+
+                const bundle = document.createElement('div');
+                bundle.className = 'reward-bundle';
+
+                // Determine status
+                if (gameState.claimedRewards.includes(reward.level)) {
+                    bundle.classList.add('claimed');
+                } else if (gameState.currentLevel >= reward.level) {
+                    bundle.classList.add('ready');
+                } else {
+                    bundle.classList.add('locked');
+                }
+
+                // Add bundle rarity class if it's a multi-pack bundle
+                const totalPacks = getTotalPackCount(reward);
+                if (totalPacks > 1) {
+                    const rarity = getBundleRarity(reward);
+                    if (rarity) {
+                        bundle.classList.add(`bundle-${rarity}`);
+                    }
+                }
+
+                // Add status icon
+                const statusIcon = document.createElement('div');
+                statusIcon.className = 'reward-status';
+                if (gameState.claimedRewards.includes(reward.level)) {
+                    statusIcon.textContent = '✓';
+                } else if (gameState.currentLevel >= reward.level) {
+                    statusIcon.textContent = '⭐';
+                }
+                bundle.appendChild(statusIcon);
+
+                // Add reward icon
+                const icon = document.createElement('div');
+                icon.className = 'reward-icon';
+                icon.textContent = getPrimaryIcon(reward);
+                bundle.appendChild(icon);
+
+                // Add reward name
+                const name = document.createElement('div');
+                name.className = 'reward-name';
+                name.textContent = getRewardBundleName(reward);
+                bundle.appendChild(name);
+
+                // Click handler
+                bundle.onclick = () => openRewardModal(reward);
+
+                node.appendChild(bundle);
+
+                // Add level indicator
+                const levelIndicator = document.createElement('div');
+                levelIndicator.className = 'level-indicator';
+                if (gameState.currentLevel === reward.level) {
+                    levelIndicator.classList.add('current');
+                }
+                levelIndicator.textContent = reward.level;
+                node.appendChild(levelIndicator);
+
+                // Add XP requirement
+                const xpReq = document.createElement('div');
+                xpReq.className = 'xp-requirement';
+                xpReq.textContent = `${levelRequirements[reward.level].toLocaleString()} XP`;
+                node.appendChild(xpReq);
+
+                // Add badge unlock indicator for milestone levels
+                if ([10, 20, 30].includes(reward.level)) {
+                    const badgeUnlock = document.createElement('div');
+                    badgeUnlock.className = 'badge-unlock';
+                    badgeUnlock.textContent = '🏆 Milestone!';
+                    node.appendChild(badgeUnlock);
+                }
+
+                track.appendChild(node);
+            });
+
+            // Scroll to current level (unless skipScroll is true)
+            if (!skipScroll && gameState.currentLevel > 0 && gameState.currentLevel <= 50) {
+                const currentNode = track.children[gameState.currentLevel - 1];
+                if (currentNode) {
+                    currentNode.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                }
+            }
+        }
+
+        // Open reward modal
+        let currentRewardLevel = null;
+        function openRewardModal(reward) {
+            currentRewardLevel = reward.level;
+
+            const totalPacks = getTotalPackCount(reward);
+            const bundleName = getRewardBundleName(reward);
+            document.getElementById('modal-title').textContent = totalPacks > 1 ? `${bundleName} - Level ${reward.level}` : `Level ${reward.level} Reward`;
+
+            const itemsContainer = document.getElementById('modal-items');
+            itemsContainer.innerHTML = '';
+
+            if (reward.packs.length === 0) {
+                itemsContainer.innerHTML = '<p style="text-align: center; color: #888;">No reward at this level</p>';
+            } else {
+                reward.packs.forEach(packRef => {
+                    const packInfo = packTypes[packRef.type];
+                    const item = document.createElement('div');
+                    item.className = 'modal-item';
+                    item.innerHTML = `
+                        <div class="modal-item-icon">${packInfo.icon}</div>
+                        <div class="modal-item-info">
+                            <div class="modal-item-name">${packRef.count}x ${packInfo.name}</div>
+                        </div>
+                    `;
+                    itemsContainer.appendChild(item);
+                });
+            }
+
+            const claimButton = document.getElementById('claim-button');
+            const isClaimed = gameState.claimedRewards.includes(reward.level);
+            const isReady = gameState.currentLevel >= reward.level;
+
+            claimButton.disabled = isClaimed || !isReady || reward.packs.length === 0;
+            claimButton.textContent = isClaimed ? 'Already Claimed' : (isReady ? (reward.packs.length === 0 ? 'No Reward' : 'Claim Reward') : 'Locked');
+
+            document.getElementById('reward-modal').classList.add('show');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('reward-modal').classList.remove('show');
+            currentRewardLevel = null;
+        }
+
+        // Claim current reward
+        function claimCurrentReward() {
+            if (!currentRewardLevel) return;
+
+            const reward = rewards.find(r => r.level === currentRewardLevel);
+            if (!reward || reward.packs.length === 0) return;
+
+            if (gameState.claimedRewards.includes(currentRewardLevel)) {
+                showNotification('Already claimed!');
+                return;
+            }
+
+            if (gameState.currentLevel < currentRewardLevel) {
+                showNotification('Level not reached yet!');
+                return;
+            }
+
+            // Calculate total value of rewards
+            let rewardValue = 0;
+            reward.packs.forEach(packRef => {
+                const packInfo = packTypes[packRef.type];
+                rewardValue += packInfo.value * packRef.count;
+            });
+            gameState.totalRewardsValue += rewardValue;
+
+            // Add packs to inventory
+            reward.packs.forEach(packRef => {
+                const packInfo = packTypes[packRef.type];
+                const existingItem = gameState.inventory.find(item => item.type === packRef.type);
+                if (existingItem) {
+                    existingItem.quantity += packRef.count;
+                } else {
+                    gameState.inventory.push({
+                        type: packRef.type,
+                        name: packInfo.name,
+                        icon: packInfo.icon,
+                        quantity: packRef.count
+                    });
+                }
+            });
+
+            gameState.claimedRewards.push(currentRewardLevel);
+
+            // Log reward claim activity
+            const packNames = reward.packs.map(p => {
+                const packInfo = packTypes[p.type];
+                return p.count > 1 ? `${p.count}x ${packInfo.name}` : packInfo.name;
+            }).join(', ');
+            logActivity('reward', `Claimed Level ${currentRewardLevel} reward: ${packNames}`, 0);
+
+            showNotification(`✅ Level ${currentRewardLevel} reward claimed!`);
+            closeModal();
+            updateUI();
+            saveGameState();
+        }
+
+        // Claim all available rewards
+        function claimAllRewards() {
+            let claimedCount = 0;
+            let totalRewardValue = 0;
+
+            // Find all rewards that can be claimed
+            rewards.forEach(reward => {
+                if (reward.packs.length === 0) return; // Skip rewards with no packs
+                if (gameState.claimedRewards.includes(reward.level)) return; // Skip already claimed
+                if (gameState.currentLevel < reward.level) return; // Skip not yet reached
+
+                // Calculate reward value
+                let rewardValue = 0;
+                reward.packs.forEach(packRef => {
+                    const packInfo = packTypes[packRef.type];
+                    rewardValue += packInfo.value * packRef.count;
+                });
+                totalRewardValue += rewardValue;
+                gameState.totalRewardsValue += rewardValue;
+
+                // Add packs to inventory
+                reward.packs.forEach(packRef => {
+                    const packInfo = packTypes[packRef.type];
+                    const existingItem = gameState.inventory.find(item => item.type === packRef.type);
+                    if (existingItem) {
+                        existingItem.quantity += packRef.count;
+                    } else {
+                        gameState.inventory.push({
+                            type: packRef.type,
+                            name: packInfo.name,
+                            icon: packInfo.icon,
+                            quantity: packRef.count
+                        });
+                    }
+                });
+
+                gameState.claimedRewards.push(reward.level);
+                claimedCount++;
+
+                // Log reward claim activity
+                const packNames = reward.packs.map(p => {
+                    const packInfo = packTypes[p.type];
+                    return p.count > 1 ? `${p.count}x ${packInfo.name}` : packInfo.name;
+                }).join(', ');
+                logActivity('reward', `Claimed Level ${reward.level} reward: ${packNames}`, 0);
+            });
+
+            if (claimedCount > 0) {
+                showNotification(`✅ Claimed ${claimedCount} reward${claimedCount > 1 ? 's' : ''} worth $${totalRewardValue.toLocaleString()}!`);
+                updateUI();
+                saveGameState();
+            } else {
+                showNotification('No rewards available to claim');
+            }
+        }
+
+        // Update missions
+        function updateMissions() {
+            const grid = document.getElementById('missions-grid');
+            grid.innerHTML = '';
+
+            Object.keys(missionCategories).forEach(categoryKey => {
+                const category = missionCategories[categoryKey];
+                const progress = gameState.missionProgress[categoryKey];
+                const currentTier = progress.currentTier;
+
+                // Cap at tier 10 - after that, repeat the final tier
+                const tierIndex = Math.min(currentTier, 10) - 1;
+                const tierData = category.tiers[tierIndex];
+
+                const card = document.createElement('div');
+                card.className = 'mission-card';
+
+                const progressPercent = (progress.progress / tierData.maxProgress) * 100;
+                const progressDeg = (progressPercent / 100) * 360;
+
+                const isComplete = progress.progress >= tierData.maxProgress;
+                const tierLabel = currentTier <= 10 ? `Tier ${currentTier}` : `Tier 10 (Max)`;
+
+                card.innerHTML = `
+                    <div class="mission-header">
+                        <div class="mission-level">${tierLabel}</div>
+                        <div class="mission-xp">${tierData.xpReward} XP</div>
+                    </div>
+                    <div class="mission-progress" onclick="progressMission('${categoryKey}')">
+                        <div class="mission-circle" style="background: conic-gradient(#8a2be2 ${progressDeg}deg, rgba(138, 43, 226, 0.2) ${progressDeg}deg);">
+                            <div class="mission-circle-inner">${progress.progress}/${tierData.maxProgress}</div>
+                        </div>
+                    </div>
+                    <div class="mission-title">${category.icon} ${category.name}</div>
+                    <div class="mission-description">${tierData.description}</div>
+                    <button class="mission-claim-btn" onclick="claimMission('${categoryKey}')" ${!isComplete ? 'disabled' : ''}>
+                        ${isComplete ? 'Claim XP' : 'Complete Mission'}
+                    </button>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Progress mission (simulate completing part of mission)
+        function progressMission(categoryKey) {
+            const category = missionCategories[categoryKey];
+            const progress = gameState.missionProgress[categoryKey];
+            const currentTier = progress.currentTier;
+            const tierIndex = Math.min(currentTier, 10) - 1;
+            const tierData = category.tiers[tierIndex];
+
+            // Hybrid mission increments by 10, others by 1
+            const increment = categoryKey === 'hybrid' ? 10 : 1;
+
+            if (progress.progress < tierData.maxProgress) {
+                progress.progress = Math.min(progress.progress + increment, tierData.maxProgress);
+
+                if (progress.progress >= tierData.maxProgress) {
+                    showNotification(`🎯 ${category.name} Mission Complete!`);
+                } else {
+                    showNotification(`Progress: ${progress.progress}/${tierData.maxProgress}`);
+                }
+
+                updateUI(true);
+                saveGameState();
+            }
+        }
+
+        // Claim mission
+        function claimMission(categoryKey) {
+            const category = missionCategories[categoryKey];
+            const progress = gameState.missionProgress[categoryKey];
+            const currentTier = progress.currentTier;
+            const tierIndex = Math.min(currentTier, 10) - 1;
+            const tierData = category.tiers[tierIndex];
+
+            if (progress.progress < tierData.maxProgress) {
+                showNotification('Mission not complete yet!');
+                return;
+            }
+
+            // Award XP
+            addXP(tierData.xpReward);
+
+            // Advance to next tier (or stay at tier 10 and reset)
+            if (currentTier < 10) {
+                progress.currentTier++;
+                progress.progress = 0;
+                showNotification(`✅ ${category.name} Tier ${currentTier} Complete! Advanced to Tier ${progress.currentTier}. +${tierData.xpReward} XP`);
+            } else {
+                // At max tier, reset progress to repeat the tier
+                progress.progress = 0;
+                showNotification(`✅ ${category.name} Tier 10 Complete! Mission Reset. +${tierData.xpReward} XP`);
+            }
+
+            updateUI(true);
+            saveGameState();
+        }
+
+        // Update inventory
+        function updateInventory() {
+            const grid = document.getElementById('inventory-content-area');
+            grid.innerHTML = '';
+
+            if (gameState.inventory.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888;">No items in inventory. Claim rewards to add packs!</p>';
+                return;
+            }
+
+            gameState.inventory.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'inventory-item';
+                itemDiv.innerHTML = `
+                    <div class="item-count-badge">${item.quantity}</div>
+                    <div class="item-icon">${item.icon}</div>
+                    <div class="item-name">${item.name || packTypes[item.type]?.name || item.type}</div>
+                    <div class="item-value">Pack</div>
+                    <button class="item-action-btn" onclick="openPack(${index})">Open</button>
+                `;
+                grid.appendChild(itemDiv);
+            });
+        }
+
+        // Update inventory V2
+        function updateInventoryV2() {
+            const grid = document.getElementById('inventory-content-area-v2');
+            if (!grid) return; // Exit if V2 inventory doesn't exist
+
+            grid.innerHTML = '';
+
+            if (gameState.inventory.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #888;">No items in inventory. Claim rewards to add packs!</p>';
+                return;
+            }
+
+            gameState.inventory.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'inventory-item';
+                itemDiv.innerHTML = `
+                    <div class="item-count-badge">${item.quantity}</div>
+                    <div class="item-icon">${item.icon}</div>
+                    <div class="item-name">${item.name || packTypes[item.type]?.name || item.type}</div>
+                    <div class="item-value">Pack</div>
+                    <button class="item-action-btn" onclick="openPack(${index})">Open</button>
+                `;
+                grid.appendChild(itemDiv);
+            });
+        }
+
+        // Change quantity (for testing)
+        function changeQuantity(index, delta) {
+            gameState.inventory[index].quantity += delta;
+
+            if (gameState.inventory[index].quantity <= 0) {
+                gameState.inventory.splice(index, 1);
+            }
+
+            updateUI(true); // Skip scroll when changing quantities
+            saveGameState();
+        }
+
+        // Open pack
+        function openPack(index) {
+            const item = gameState.inventory[index];
+
+            if (item.quantity <= 0) return;
+
+            item.quantity--;
+
+            if (item.quantity === 0) {
+                gameState.inventory.splice(index, 1);
+            }
+
+            const rewards = ['Common Item', 'Rare Item', 'Epic Item', 'Legendary Item'];
+            const reward = rewards[Math.floor(Math.random() * rewards.length)];
+
+            // Log pack opening activity
+            logActivity('pack', `Opened ${item.name} - received ${reward}`, 0);
+
+            showNotification(`🎁 Pack Opened! You got: ${reward}`);
+            updateUI(true); // Skip scroll when opening packs
+            saveGameState();
+        }
+
+        // Update badges
+        function updateBadges() {
+            const grid = document.getElementById('badges-content-area');
+            grid.innerHTML = '';
+
+            badges.forEach(badge => {
+                const badgeDiv = document.createElement('div');
+                badgeDiv.className = `badge-item ${badge.earned ? 'earned' : 'locked'}`;
+                badgeDiv.innerHTML = `
+                    <div class="badge-icon">${badge.icon}</div>
+                    <div class="badge-name">${badge.name}</div>
+                    <div class="badge-description">${badge.description}</div>
+                    ${badge.earned ? `<div class="badge-date">Earned: ${badge.earnedDate}</div>` : ''}
+                `;
+                grid.appendChild(badgeDiv);
+            });
+        }
+
+        // Update badges V2
+        function updateBadgesV2() {
+            const grid = document.getElementById('badges-content-area-v2');
+            if (!grid) return; // Exit if V2 badges doesn't exist
+
+            grid.innerHTML = '';
+
+            badges.forEach(badge => {
+                const badgeDiv = document.createElement('div');
+                badgeDiv.className = `badge-item ${badge.earned ? 'earned' : 'locked'}`;
+                badgeDiv.innerHTML = `
+                    <div class="badge-icon">${badge.icon}</div>
+                    <div class="badge-name">${badge.name}</div>
+                    <div class="badge-description">${badge.description}</div>
+                    ${badge.earned ? `<div class="badge-date">Earned: ${badge.earnedDate}</div>` : ''}
+                `;
+                grid.appendChild(badgeDiv);
+            });
+        }
+
+        // Reset progress
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                gameState = {
+                    totalXP: 0,
+                    currentLevel: 0,
+                    inventory: [],
+                    claimedRewards: [],
+                    earnedBadges: [],
+                    totalSpend: 0,
+                    totalRewardsValue: 0,
+                    totalExpectedRevenue: 0,
+                    activityLog: []
+                };
+
+                // Reset badges
+                badges.forEach(badge => {
+                    badge.earned = false;
+                    badge.earnedDate = null;
+                });
+
+                initializeMissions();
+                saveGameState();
+                updateUI();
+                showNotification('Progress reset!');
+            }
+        }
+
+        // Main nav tab navigation
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+
+                // Update active tab
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Hide all tabs
+                document.getElementById('rewards-tab').classList.add('hidden');
+                document.getElementById('rewards-v2-tab').classList.add('hidden');
+                document.getElementById('stats-tab').classList.add('hidden');
+                document.getElementById('activity-tab').classList.add('hidden');
+
+                // Show selected tab
+                if (targetTab === 'rewards') {
+                    document.getElementById('rewards-tab').classList.remove('hidden');
+                } else if (targetTab === 'rewards-v2') {
+                    document.getElementById('rewards-v2-tab').classList.remove('hidden');
+                } else if (targetTab === 'stats') {
+                    document.getElementById('stats-tab').classList.remove('hidden');
+                    // Redraw charts when stats tab is opened (delay for DOM update)
+                    setTimeout(() => initializeCharts(), 100);
+                } else if (targetTab === 'activity') {
+                    document.getElementById('activity-tab').classList.remove('hidden');
+                    // Update activity table when tab is opened
+                    updateActivityTable();
+                } else {
+                    showNotification('This tab is not implemented in the tester');
+                }
+            });
+        });
+
+        // Toggle badges section (Rewards tab)
+        function toggleBadges() {
+            const badgesColumn = document.getElementById('badges-column');
+            const toggleIcon = document.getElementById('badges-toggle-icon');
+
+            if (badgesColumn.classList.contains('collapsed')) {
+                badgesColumn.classList.remove('collapsed');
+                toggleIcon.textContent = '◧';
+            } else {
+                badgesColumn.classList.add('collapsed');
+                toggleIcon.textContent = '◨';
+            }
+        }
+
+        // Toggle badges section (Rewards V2 tab)
+        function toggleBadgesV2() {
+            const badgesColumn = document.getElementById('badges-column-v2');
+            const toggleIcon = document.getElementById('badges-toggle-icon-v2');
+
+            if (badgesColumn.classList.contains('collapsed')) {
+                badgesColumn.classList.remove('collapsed');
+                toggleIcon.textContent = '◧';
+            } else {
+                badgesColumn.classList.add('collapsed');
+                toggleIcon.textContent = '◨';
+            }
+        }
+
+        // Stats and Charts Data
+        // User distribution data - from spreadsheet column K "Est. Reached Users"
+        const userDistributionData = [
+            1693, 1069, 819, 666, 482, 279, 226, 168, 149, 120, // Levels 1-10
+            98, 82, 82, 74, 59, 53, 48, 40, 35, 30, // Levels 11-20
+            26, 22, 20, 16, 12, 10, 8, 8, 6, 6, // Levels 21-30
+            5, 5, 4, 4, 4, 4, 4, 4, 4, 4, // Levels 31-40
+            4, 3, 3, 3, 3, 3, 3, 3, 3, 3 // Levels 41-50
+        ];
+
+        // Calculate cumulative rewards value per level
+        function calculateRewardsValueData() {
+            const rewardsValueData = [];
+            let cumulativeValue = 0;
+
+            rewards.forEach(reward => {
+                reward.packs.forEach(packRef => {
+                    const packInfo = packTypes[packRef.type];
+                    cumulativeValue += packInfo.value * packRef.count;
+                });
+                rewardsValueData.push(cumulativeValue);
+            });
+
+            return rewardsValueData;
+        }
+
+        // Draw bar chart with value labels on each bar
+        function drawBarChart(canvasId, data, labels, color, maxValue = null) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const container = canvas.parentElement;
+            const width = canvas.width = container.offsetWidth || 800;
+            const height = canvas.height = 400;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+
+            // Settings
+            const padding = 50;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+            const barWidth = chartWidth / data.length;
+            const max = maxValue || Math.max(...data);
+
+            // Draw bars and value labels
+            data.forEach((value, index) => {
+                const barHeight = (value / max) * chartHeight;
+                const x = padding + index * barWidth;
+                const y = height - padding - barHeight;
+
+                // Create gradient
+                const gradient = ctx.createLinearGradient(0, y, 0, height - padding);
+                gradient.addColorStop(0, color);
+                gradient.addColorStop(1, color + '80');
+
+                ctx.fillStyle = gradient;
+                ctx.fillRect(x, y, barWidth - 2, barHeight);
+
+                // Add value label on top of bar (for every 5th level to avoid clutter)
+                if (index % 5 === 0 || index === data.length - 1) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '9px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(value.toLocaleString(), x + barWidth / 2, y - 5);
+                }
+            });
+
+            // Draw axes
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+
+            // Draw labels
+            ctx.fillStyle = '#888';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+
+            // X-axis labels (show every 5th level)
+            for (let i = 0; i < labels.length; i += 5) {
+                const x = padding + i * barWidth + barWidth / 2;
+                const y = height - padding + 20;
+                ctx.fillText(labels[i], x, y);
+            }
+
+            // Y-axis labels
+            ctx.textAlign = 'right';
+            const ySteps = 5;
+            for (let i = 0; i <= ySteps; i++) {
+                const value = Math.round((max / ySteps) * i);
+                const y = height - padding - (chartHeight / ySteps) * i;
+                ctx.fillText(value.toLocaleString(), padding - 10, y + 4);
+            }
+        }
+
+        // Draw line chart
+        function drawLineChart(canvasId, data, labels, color) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const container = canvas.parentElement;
+            const width = canvas.width = container.offsetWidth || 800;
+            const height = canvas.height = 400;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+
+            // Settings
+            const padding = 50;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+            const max = Math.max(...data);
+            const xStep = chartWidth / (data.length - 1);
+
+            // Draw line
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            data.forEach((value, index) => {
+                const x = padding + index * xStep;
+                const y = height - padding - (value / max) * chartHeight;
+
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+
+            ctx.stroke();
+
+            // Draw points
+            data.forEach((value, index) => {
+                const x = padding + index * xStep;
+                const y = height - padding - (value / max) * chartHeight;
+
+                ctx.fillStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Draw axes
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+
+            // Draw labels
+            ctx.fillStyle = '#888';
+            ctx.font = '11px Arial';
+            ctx.textAlign = 'center';
+
+            // X-axis labels (show every 5th level)
+            for (let i = 0; i < labels.length; i += 5) {
+                const x = padding + i * xStep;
+                const y = height - padding + 20;
+                ctx.fillText(labels[i], x, y);
+            }
+
+            // Y-axis labels
+            ctx.textAlign = 'right';
+            const ySteps = 5;
+            for (let i = 0; i <= ySteps; i++) {
+                const value = Math.round((max / ySteps) * i);
+                const y = height - padding - (chartHeight / ySteps) * i;
+                ctx.fillText(value.toLocaleString(), padding - 10, y + 4);
+            }
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            const levels = Array.from({ length: 50 }, (_, i) => (i + 1).toString());
+            const rewardsValueData = calculateRewardsValueData();
+
+            // Draw user distribution chart
+            drawBarChart('user-distribution-chart', userDistributionData, levels, '#667eea');
+
+            // Draw rewards value chart
+            drawLineChart('rewards-value-chart', rewardsValueData, levels, '#ffd700');
+
+            // Draw XP curve chart
+            const xpData = levelRequirements.slice(1); // Remove level 0
+            drawLineChart('xp-curve-chart', xpData, levels, '#10b981');
+        }
+
+        // Re-draw charts when window is resized
+        window.addEventListener('resize', () => {
+            if (document.getElementById('stats-tab') && !document.getElementById('stats-tab').classList.contains('hidden')) {
+                initializeCharts();
+            }
+        });
+
+        // Initialize
+        loadGameState();
+        gameState.currentLevel = calculateLevel();
+        updateUI();
+        setupActivityFilters();
+        updateActivityTable();
+    </script>
+</body>
+</html>
